@@ -1,4 +1,4 @@
-package com.api.rest.model;
+package com.api.rest.to;
 
 import java.util.List;
 
@@ -16,24 +16,24 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@Table(name = "TBESTADO")
+@Table(name = "tbestado")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class EstadoModel
+public class EstadoTO
 {
 	
 	@Id
 	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "IDESTADO")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idestado")
 	private Long idEstado;
 	
-	@Column(name = "TXNOME", nullable = false)
+	@Column(name = "txnome", nullable = false)
 	private String txNome;
 	
-	@Column(name = "TXSIGLA")
+	@Column(name = "txsigla")
 	private String txSigla;
 	
 	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "IDESTADO", insertable = false, updatable = false)
-	private List<CidadeModel> cidades;
+	@JoinColumn(name = "idestado", insertable = false, updatable = false)
+	private List<CidadeTO> cidades;
 }

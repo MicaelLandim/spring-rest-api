@@ -1,13 +1,13 @@
-DELETE FROM TBCIDADE;
-DELETE FROM TBESTADO;
-DELETE FROM TBENDERECO;
+delete from tbcidade;
+delete from tbestado;
+delete from tbendereco;
 
-INSERT INTO TBESTADO (IDESTADO, TXNOME, TXSIGLA) VALUES (1, 'MINAS GERAIS', 'MG');
-INSERT INTO TBESTADO (IDESTADO, TXNOME, TXSIGLA) VALUES (2, 'SAO PAULO', 'SP');
-INSERT INTO TBESTADO (IDESTADO, TXNOME, TXSIGLA) VALUES (3, 'CEARA', 'CE');
+insert into tbestado (idestado, txnome, txsigla) values (1, 'MINAS GERAIS', 'MG');
+insert into tbestado (idestado, txnome, txsigla) values (2, 'SAO PAULO', 'SP');
+insert into tbestado (idestado, txnome, txsigla) values (3, 'CEARA', 'CE');
 
-INSERT INTO TBCIDADE (IDCIDADE, TXNOME, IDESTADO) VALUES (1, 'UBERLANDIA', 1);
-INSERT INTO TBCIDADE (IDCIDADE, TXNOME, IDESTADO) VALUES (2, 'BELO HORIZONTE', 1);
-INSERT INTO TBCIDADE (IDCIDADE, TXNOME, IDESTADO) VALUES (3, 'SAO PAULO', 2);
-INSERT INTO TBCIDADE (IDCIDADE, TXNOME, IDESTADO) VALUES (4, 'CAMPINAS', 2);
-INSERT INTO TBCIDADE (IDCIDADE, TXNOME, IDESTADO) VALUES (5, 'FORTALEZA', 3);
+insert into tbcidade (idcidade, txnome, idestado) values (1, 'UBERLANDIA', 1);
+insert into tbcidade (idcidade, txnome, idestado) values (2, 'BELO HORIZONTE', 1);
+insert into tbcidade (idcidade, txnome, idestado) values (3, 'SAO PAULO', 2);
+insert into tbcidade (idcidade, txnome, idestado) values (4, 'CAMPINAS', 2);
+insert into tbcidade (idcidade, txnome, idestado) values (5, 'FORTALEZA', 3);

@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.api.rest.model.EstadoModel;
-import com.api.rest.repository.EstadoRepository;
+import com.api.rest.dao.EstadoDAO;
 import com.api.rest.service.EstadoService;
+import com.api.rest.to.EstadoTO;
 
 @RestController
 @RequestMapping("/estados")
@@ -25,34 +25,34 @@ public class EstadoController
 {
 	
 	@Autowired
-	private EstadoRepository estadoRepository;
+	private EstadoDAO estadoDAO;
 	
 	@Autowired
 	private EstadoService cadastroEstado;
 	
 	@GetMapping("/listar")
-	public List<EstadoModel> listar()
+	public List<EstadoTO> listar()
 	{
-		return estadoRepository.findAll();
+		return estadoDAO.findAll();
 	}
 	
 	@GetMapping("/listar/{estadoId}")
-	public EstadoModel buscar(@PathVariable Long estadoId)
+	public EstadoTO buscar(@PathVariable Long estadoId)
 	{
-		return cadastroEstado.buscarOuFalhar(estadoId);
+		return cadastroEstado.buscarEstado(estadoId);
 	}
 	
 	@PostMapping("/adicionar")
 	@ResponseStatus(HttpStatus.CREATED)
-	public EstadoModel adicionar(@RequestBody EstadoModel estado)
+	public EstadoTO adicionar(@RequestBody EstadoTO estado)
 	{
 		return cadastroEstado.salvar(estado);
 	}
 	
 	@PutMapping("/atualizar/{idEstado}")
-	public EstadoModel atualizar(@PathVariable Long idEstado, @RequestBody EstadoModel estadoModel)
+	public EstadoTO atualizar(@PathVariable Long idEstado, @RequestBody EstadoTO estadoModel)
 	{
-		EstadoModel estadoAtual = cadastroEstado.buscarOuFalhar(idEstado);
+		EstadoTO estadoAtual = cadastroEstado.buscarEstado(idEstado);
 		
 		BeanUtils.copyProperties(estadoModel, estadoAtual, "id");
 		

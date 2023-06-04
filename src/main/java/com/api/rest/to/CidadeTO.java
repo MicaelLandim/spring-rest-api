@@ -1,4 +1,4 @@
-package com.api.rest.model;
+package com.api.rest.to;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,13 +14,13 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@Table(name = "TBCIDADE")
+@Table(name = "tbcidade")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CidadeModel {
+public class CidadeTO {
 
 	@Id
 	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "IDCIDADE")
 	private Long idCidade;
 
@@ -32,6 +32,6 @@ public class CidadeModel {
 
 	@ManyToOne
 	@JoinColumn(name = "IDESTADO", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_CDD_ESD"))
-	private EstadoModel estadoModel;
+	private EstadoTO estadoModel;
 
 }

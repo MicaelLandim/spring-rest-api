@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.api.rest.exception.EstadoNaoEncontradoException;
-import com.api.rest.exception.NegocioException;
-import com.api.rest.model.CidadeModel;
-import com.api.rest.repository.CidadeRepository;
+import com.api.rest.dao.CidadeDAO;
+import com.api.rest.model.RetornoModel;
 import com.api.rest.service.CidadeService;
+import com.api.rest.to.CidadeTO;
 
 @RestController
 @RequestMapping(value = "/cidades")
@@ -27,56 +26,56 @@ public class CidadeController
 {
 	
 	@Autowired
-	private CidadeRepository cidadeRepository;
+	private CidadeDAO cidadeDAO;
 	
 	@Autowired
 	private CidadeService cadastroCidadeService;
 	
 	@GetMapping("/listar")
-	public List<CidadeModel> listar()
+	public List<CidadeTO> listar()
 	{
-		return cidadeRepository.findAll();
+		return cidadeDAO.findAll();
 	}
 	
 	@GetMapping("/listar/{idCidade}")
-	public CidadeModel buscar(@PathVariable Long idCidade)
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<CidadeTO> buscar(@PathVariable Long idCidade)
 	{
-		return cadastroCidadeService.buscarOuFalhar(idCidade);
+		RetornoModel<CidadeTO> retornoModel = new RetornoModel<CidadeTO>();
+		
+		CidadeTO cidadeTO = cadastroCidadeService.buscarCidade(idCidade);
+		
+		retornoModel.setPayload(cidadeTO);
+		
+		return retornoModel;
 	}
 	
 	@PostMapping("/adicionar")
-	@ResponseStatus(HttpStatus.CREATED)
-	public CidadeModel adicionar(@RequestBody CidadeModel cidadeModel)
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<Object> adicionar(@RequestBody CidadeTO cidadeModel)
 	{
-		try
-		{
-			return cadastroCidadeService.salvar(cidadeModel);
-		}
-		catch (EstadoNaoEncontradoException e)
-		{
-			throw new NegocioException(e.getMessage(), e);
-		}
+		RetornoModel<Object> retornoModel = new RetornoModel<Object>();
+		
+		cadastroCidadeService.salvar(cidadeModel);
+		
+		retornoModel.setTxRetorno("A cidade foi criada com sucesso.");
+		
+		return retornoModel;
 	}
 	
 	@PutMapping("/atualizar/{cidadeId}")
-	public CidadeModel atualizar(@PathVariable Long cidadeId, @RequestBody CidadeModel cidade)
+	@ResponseStatus(HttpStatus.OK)
+	public CidadeTO atualizar(@PathVariable Long cidadeId, @RequestBody CidadeTO cidade)
 	{
-		try
-		{
-			CidadeModel cidadeAtual = cadastroCidadeService.buscarOuFalhar(cidadeId);
-			
-			BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-			
-			return cadastroCidadeService.salvar(cidadeAtual);
-		}
-		catch (EstadoNaoEncontradoException e)
-		{
-			throw new NegocioException(e.getMessage(), e);
-		}
+		CidadeTO cidadeAtual = cadastroCidadeService.buscarCidade(cidadeId);
+		
+		BeanUtils.copyProperties(cidade, cidadeAtual, "id");
+		
+		return cadastroCidadeService.salvar(cidadeAtual);
 	}
 	
 	@DeleteMapping("/remover/{cidadeId}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseStatus(HttpStatus.OK)
 	public void remover(@PathVariable Long cidadeId)
 	{
 		cadastroCidadeService.excluir(cidadeId);

@@ -4,38 +4,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import com.api.rest.exception.EstadoNaoEncontradoException;
-import com.api.rest.model.EstadoModel;
-import com.api.rest.repository.EstadoRepository;
+import com.api.rest.dao.EstadoDAO;
+import com.api.rest.exception.APIException;
+import com.api.rest.to.EstadoTO;
 
 @Service
 public class EstadoService
 {
 	
 	@Autowired
-	private EstadoRepository estadoRepository;
+	private EstadoDAO estadoRepository;
 	
-	public EstadoModel salvar(EstadoModel estado)
+	public EstadoTO salvar(EstadoTO estadoTO)
 	{
-		return estadoRepository.save(estado);
+		return estadoRepository.save(estadoTO);
 	}
 	
-	public void excluir(Long estadoId)
+	public void excluir(Long idEstado)
 	{
 		try
 		{
-			estadoRepository.deleteById(estadoId);
-			
+			estadoRepository.deleteById(idEstado);
 		}
 		catch (EmptyResultDataAccessException e)
 		{
-			throw new EstadoNaoEncontradoException(estadoId);
+			throw new APIException("O estado informado não existe.");
 		}
 	}
 	
-	public EstadoModel buscarOuFalhar(Long estadoId)
+	public EstadoTO buscarEstado(Long estadoId)
 	{
-		return estadoRepository.findById(estadoId).orElseThrow(() -> new EstadoNaoEncontradoException(estadoId));
+		return estadoRepository.findById(estadoId).orElseThrow(() -> new APIException("O estado informado não existe."));
 	}
 	
 }

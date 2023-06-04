@@ -1,7 +1,7 @@
-CREATE TABLE TBCIDADE (
-	IDCIDADE BIGINT NOT NULL AUTO_INCREMENT,
-	IDESTADO BIGINT NOT NULL,
-	TXNOME VARCHAR(80) NOT NULL,
-	CONSTRAINT PK_CDD PRIMARY KEY (IDCIDADE),
-	CONSTRAINT FK_CDD_ESD FOREIGN KEY (IDESTADO) REFERENCES TBESTADO(IDESTADO)
-) ENGINE=INNODB DEFAULT CHARSET=UTF8;
+create table tbcidade (
+	idcidade bigint not null auto_increment,
+	idestado bigint not null,
+	txnome varchar(80) not null,
+	constraint pk_cdd primary key (idcidade),
+	constraint fk_cdd_esd foreign key (idestado) references tbestado(idestado)
+) engine=innodb default charset=utf8;

@@ -4,37 +4,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import com.api.rest.exception.CidadeNaoEncontradaException;
-import com.api.rest.model.CidadeModel;
-import com.api.rest.repository.CidadeRepository;
+import com.api.rest.dao.CidadeDAO;
+import com.api.rest.exception.APIException;
+import com.api.rest.to.CidadeTO;
 
 @Service
 public class CidadeService
 {
 	
 	@Autowired
-	private CidadeRepository cidadeRepository;
+	private CidadeDAO cidadeRepository;
 	
-	public CidadeModel salvar(CidadeModel cidade)
-	{
-		return cidadeRepository.save(cidade);
-	}
-	
-	public void excluir(Long cidadeId)
+	public CidadeTO salvar(CidadeTO cidadeTO)
 	{
 		try
 		{
-			cidadeRepository.deleteById(cidadeId);
+			return cidadeRepository.saveAndFlush(cidadeTO);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public void excluir(Long idCidade)
+	{
+		try
+		{
+			cidadeRepository.deleteById(idCidade);
 		}
 		catch (EmptyResultDataAccessException e)
 		{
-			throw new CidadeNaoEncontradaException(cidadeId);
+			throw new APIException("A cidade informada não existe.");
 		}
 	}
 	
-	public CidadeModel buscarOuFalhar(Long cidadeId)
+	public CidadeTO buscarCidade(Long idCidade)
 	{
-		return cidadeRepository.findById(cidadeId).orElseThrow(() -> new CidadeNaoEncontradaException(cidadeId));
+		return cidadeRepository.findById(idCidade).orElseThrow(() -> new APIException("A cidade informada não existe."));
 	}
 	
 }

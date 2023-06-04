@@ -1,6 +1,6 @@
-CREATE TABLE TBESTADO (
-	IDESTADO BIGINT NOT NULL AUTO_INCREMENT,
-	TXNOME VARCHAR(80) NOT NULL,
-	TXSIGLA VARCHAR(3) NOT NULL,
-	CONSTRAINT PK_ESD PRIMARY KEY (IDESTADO)
-) ENGINE=INNODB DEFAULT CHARSET=UTF8;
+create table tbestado (
+	idestado bigint not null auto_increment,
+	txnome varchar(80) not null,
+	txsigla varchar(3) not null,
+	constraint pk_esd primary key (idestado)
+) engine=innodb default charset=utf8;

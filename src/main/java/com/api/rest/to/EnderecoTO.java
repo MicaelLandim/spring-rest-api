@@ -1,4 +1,4 @@
-package com.api.rest.model;
+package com.api.rest.to;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,37 +15,37 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@Table(name = "TBENDERECO")
+@Table(name = "tbendereco")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class EnderecoModel
+public class EnderecoTO
 {
 	
 	@Id
 	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "IDENDERECO")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idendereco")
 	private Long idEndereco;
 	
-	@Column(name = "TXLOGRADOURO")
+	@Column(name = "txlogradouro")
 	private String txLogradouro;
 	
-	@Column(name = "TXNUMERO")
+	@Column(name = "txnumero")
 	private String txNumero;
 	
-	@Column(name = "TXCOMPLEMENTO")
+	@Column(name = "txcomplemento")
 	private String txComplemento;
 	
-	@Column(name = "TXBAIRRO")
+	@Column(name = "txbairro")
 	private String txBairro;
 	
-	@Column(name = "NRCEP")
+	@Column(name = "nrcep")
 	private Long nrCEP;
 	
-	@Column(name = "IDCIDADE")
+	@Column(name = "idcidade")
 	private Long idCidade;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "IDCIDADE", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_END_CDD"))
-	private CidadeModel cidadeModel;
+	@JoinColumn(name = "idcidade", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_END_CDD"))
+	private CidadeTO cidadeModel;
 	
 }
