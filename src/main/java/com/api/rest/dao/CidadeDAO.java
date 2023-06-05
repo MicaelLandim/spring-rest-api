@@ -8,5 +8,4 @@ import com.api.rest.util.dao.GenericoDAO;
 @Repository
 public interface CidadeDAO extends GenericoDAO<CidadeTO>
 {
-	
 }

@@ -1,5 +1,15 @@
 package com.api.rest.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -192,10 +202,87 @@ public class Util
 		return palavra;
 	}
 	
-	public static void main(String[] args)
+	public static Object retirarReferenciasCiclicasJavassist(Object object) throws Exception
 	{
-		System.out.println(Util.retirarAcentos("JOAO   PAULO  GOERSCH SILVA"));
-		System.out.println("NOME:ROSA EDENIZA SODRE DOS SANTOS DA SI 07/2022|MATRICULA:0000379            CPF: 043.151.223-00|EMPRESA  :Mateus Supermercados S.A.|CNPJ     : 03.995.515/0037-78|CARGO    :ASSISTENTE ADMINISTRATIVO|NIVEL    :            DAT ADM:  28/01/2013|Proventos/Vantagens:|1001 Horas Normais            14,40       142,15|1012 Horas Férias Diurnas    205,20     1.990,04|1034 Horas Extras c/ 50%       0,29         7,03|1065 DSR Reflexo H.Extras      0,21         3,52|1134 Média Horas Extras Féri  13,53       134,63|1140 1/3 Férias                0,00       708,22|1142 Diferença de Férias       0,00        39,80|Total Proventos/Vantagens:  R$          3.025,39||Descontos:|1281 Desconto Adto Férias      0,00     2.517,82|1301 INSS Férias              12,00       255,01|1302 INSS                     12,00        17,03|1308 IRRF Férias               7,50        60,06|2361 P. Saúde Hapvida Titula   0,00        98,17|Total Descontos:            R$          2.948,09||Liquido:                    R$             77,30|Base FGTS      3.025,39|Base IRRF        152,70|Base Inss      3.025,39||CRÉDITO CARTÃO CREDNOSSO ALIMENTAÇÃO:     102,00");
-		System.out.println(Util.retirarAcentosContraCheque("NOME:ROSA EDENIZA SODRE DOS SANTOS DA SI 07/2022|MATRICULA:0000379            CPF: 043.151.223-00|EMPRESA  :Mateus Supermercados S.A.|CNPJ     : 03.995.515/0037-78|CARGO    :ASSISTENTE ADMINISTRATIVO|NIVEL    :            DAT ADM:  28/01/2013|Proventos/Vantagens:|1001 Horas Normais            14,40       142,15|1012 Horas Férias Diurnas    205,20     1.990,04|1034 Horas Extras c/ 50%       0,29         7,03|1065 DSR Reflexo H.Extras      0,21         3,52|1134 Média Horas Extras Féri  13,53       134,63|1140 1/3 Férias                0,00       708,22|1142 Diferença de Férias       0,00        39,80|Total Proventos/Vantagens:  R$          3.025,39||Descontos:|1281 Desconto Adto Férias      0,00     2.517,82|1301 INSS Férias              12,00       255,01|1302 INSS                     12,00        17,03|1308 IRRF Férias               7,50        60,06|2361 P. Saúde Hapvida Titula   0,00        98,17|Total Descontos:            R$          2.948,09||Liquido:                    R$             77,30|Base FGTS      3.025,39|Base IRRF        152,70|Base Inss      3.025,39||CRÉDITO CARTÃO CREDNOSSO ALIMENTAÇÃO:     102,00"));
+		Node<Object> node = new Node<Object>(object);
+		retirarReferenciasCiclicasJavassist(object, node, true);
+		return object;
 	}
+	
+	public static Object retirarReferenciasCiclicasJavassist(Object object, boolean ciclica) throws Exception
+	{
+		Node<Object> node = new Node<Object>(object);
+		retirarReferenciasCiclicasJavassist(object, node, ciclica);
+		return object;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static void retirarReferenciasCiclicasJavassist(Object object, Node<Object> node, Boolean blCiclica) throws Exception
+	{
+		ArrayList<Field> fields = new ArrayList<Field>();
+		if (object.getClass().getDeclaredFields() != null && object.getClass().getDeclaredFields().length > 0)
+			fields.addAll(Arrays.asList(object.getClass().getDeclaredFields()));
+		if (object.getClass().getSuperclass().getDeclaredFields() != null && object.getClass().getSuperclass().getDeclaredFields().length > 0)
+			fields.addAll(Arrays.asList(object.getClass().getSuperclass().getDeclaredFields()));
+		
+		for (Field field : fields)
+		{
+			field.setAccessible(true);
+			try
+			{
+				if (field.get(object) == null || Modifier.isFinal(field.getModifiers()))
+					continue;
+				if (field.getType().isPrimitive() || field.getType().equals(String.class) || field.getType().equals(Date.class) || field.getType().equals(Timestamp.class) || field.getType().getSuperclass().equals(Number.class) || field.getType().equals(Boolean.class) || field.getType().isEnum() || field.getType().isArray())
+					continue;
+				if (field.get(object).getClass().getName().indexOf("javassist") > 0)
+					field.set(object, null);
+				if (field.getType().equals(List.class) && field.getType().equals(Set.class))
+				{
+					Iterator iterator = null;
+					if (field.getType().equals(List.class))
+						iterator = ((List) field.get(object)).iterator();
+					else
+						iterator = ((Set) field.get(object)).iterator();
+					for (; iterator.hasNext();)
+					{
+						Object objectLista = (Field) iterator.next();
+						Node<Object> nodeFilho = new Node<Object>(objectLista);
+						node.addChild(nodeFilho);
+						retirarReferenciasCiclicasJavassist(objectLista, nodeFilho, blCiclica);
+					}
+				}
+				else
+				{
+					boolean existe = false;
+					Node<Object> parent = node.getParent();
+					while (parent != null)
+					{
+						if (existe = field.get(object).equals(parent.getData()))
+						{
+							if (blCiclica)
+								field.set(object, null);
+							break;
+						}
+						
+						parent = parent.getParent();
+					}
+					
+					if (!existe)
+					{
+						Node<Object> nodeFilho = new Node<Object>(field.get(object));
+						node.addChild(nodeFilho);
+						retirarReferenciasCiclicasJavassist(field.get(object), nodeFilho, blCiclica);
+					}
+					else
+						continue;
+					
+				}
+			}
+			catch (Exception e)
+			{
+				field.set(object, null);
+			}
+		}
+	}
+	
 }

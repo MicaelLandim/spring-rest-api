@@ -46,6 +46,6 @@ public class EnderecoTO
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idcidade", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_END_CDD"))
-	private CidadeTO cidadeModel;
+	private CidadeTO cidadeTO;
 	
 }

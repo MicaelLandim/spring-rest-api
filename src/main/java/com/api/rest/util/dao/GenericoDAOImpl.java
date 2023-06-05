@@ -1,5 +1,7 @@
 package com.api.rest.util.dao;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
@@ -7,18 +9,24 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.util.Assert;
 
+import com.api.rest.util.Util;
+
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 
 @NoRepositoryBean
 public class GenericoDAOImpl<Entity> extends SimpleJpaRepository<Entity, Long> implements GenericoDAO<Entity>
 {
 	
-	private final EntityManager genericoEntityManager;
+	private final EntityManager genericEntityManager;
 	
 	public GenericoDAOImpl(JpaEntityInformation<Entity, ?> entityInformation, EntityManager entityManager)
 	{
 		super(entityInformation, entityManager);
-		this.genericoEntityManager = entityManager;
+		this.genericEntityManager = entityManager;
 	}
 	
 	@Autowired
@@ -49,58 +57,44 @@ public class GenericoDAOImpl<Entity> extends SimpleJpaRepository<Entity, Long> i
 		return entity;
 	}
 	
-	// public List<Entity> find(Entity filter) throws Exception
-	// {
-	// return this.find(filter, null, null, new Object[][] {});
-	// }
-	//
-	// public List<Entity> find(Entity filter, Integer qtMaxRegistros) throws Exception
-	// {
-	// return this.find(filter, qtMaxRegistros, new Object[][] {});
-	// }
-	//
-	// public List<Entity> find(Entity filter, Object[][] juncoes) throws Exception
-	// {
-	// return this.find(filter, null, null, juncoes);
-	// }
-	//
-	// public List<Entity> find(Entity filter, Integer qtMaxRegistros, Object[][] juncoes) throws Exception
-	// {
-	// return find(filter, qtMaxRegistros, null, juncoes);
-	// }
-	//
-	// public List<Entity> find(Entity filter, Order order) throws Exception
-	// {
-	// return find(filter, null, order);
-	// }
-	//
-	// public List<Entity> find(Entity filter, Order order, Object[][] juncoes) throws Exception
-	// {
-	// return find(filter, null, order, juncoes);
-	// }
-	//
-	// public List<Entity> find(Entity filter, Integer qtMaxRegistros, Order order) throws Exception
-	// {
-	// return find(filter, qtMaxRegistros, order, new Object[][] {});
-	// }
-	//
-	// public List<Entity> find(Entity filter, Integer qtMaxRegistros, Order order, Object[][] juncoes) throws Exception
-	// {
-	// CriteriaBuilder criteriaBuilder = genericoEntityManager.getCriteriaBuilder();
-	// CriteriaQuery<Entity> query = (CriteriaQuery<Entity>) criteriaBuilder.createQuery(filter.getClass());
-	//
-	// Session sessao = getSession();
-	// Criteria criteria = sessao.createCriteria(filter.getClass());
-	//
-	// return find(criteria, filter, qtMaxRegistros, null, order, juncoes);
-	// }
-	//
-	// public List<Entity> find(Entity filter, Integer qtMaxRegistros, Integer nrPagina, Order order, Object[][] juncoes) throws Exception
-	// {
-	// Session sessao = getSession();
-	// Criteria criteria = sessao.createCriteria(filter.getClass());
-	//
-	// return find(criteria, filter, qtMaxRegistros, nrPagina, order, juncoes);
-	// }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <S extends Entity> List<S> find(S filter, Object[][] joinsMatrix)
+	{
+		CriteriaBuilder criteriaBuilder = genericEntityManager.getCriteriaBuilder();
+		CriteriaQuery<Entity> criteriaQuery = criteriaBuilder.createQuery(getDomainClass());
+		Root<Entity> root = criteriaQuery.from(getDomainClass());
+		
+		for (Object[] joinVector : joinsMatrix)
+		{
+			String joinPath = (String) joinVector[0];
+			JoinType joinType = (JoinType) joinVector[1];
+			
+			root.join(joinPath, joinType);
+		}
+		
+		criteriaQuery.select(root).distinct(true);
+		
+		List<S> list = (List<S>) genericEntityManager.createQuery(criteriaQuery).getResultList();
+		
+		return list;
+	}
+	
+	@Override
+	public <S extends Entity> List<S> findWithoutCircularReferences(S filter, Object[][] joinsMatrix)
+	{
+		List<S> list = this.find(filter, joinsMatrix);
+		
+		try
+		{
+			for (Object object : list)
+				Util.retirarReferenciasCiclicasJavassist(object, false);
+		}
+		catch (Exception e)
+		{
+		}
+		
+		return list;
+	}
 	
 }

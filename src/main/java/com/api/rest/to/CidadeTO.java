@@ -21,17 +21,17 @@ public class CidadeTO {
 	@Id
 	@EqualsAndHashCode.Include
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "IDCIDADE")
+	@Column(name = "idcidade")
 	private Long idCidade;
 
-	@Column(name = "TXNOME", nullable = false)
+	@Column(name = "txnome", nullable = false)
 	private String txNome;
 
-	@Column(name = "IDESTADO")
+	@Column(name = "idestado")
 	private Long idEstado;
 
 	@ManyToOne
-	@JoinColumn(name = "IDESTADO", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_CDD_ESD"))
-	private EstadoTO estadoModel;
+	@JoinColumn(name = "idestado", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_CDD_ESD"))
+	private EstadoTO estadoTO;
 
 }

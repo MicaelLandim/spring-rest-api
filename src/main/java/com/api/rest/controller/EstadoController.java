@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.api.rest.dao.EstadoDAO;
+import com.api.rest.model.EstadoModel;
+import com.api.rest.model.RetornoModel;
 import com.api.rest.service.EstadoService;
 import com.api.rest.to.EstadoTO;
 
@@ -25,45 +26,75 @@ public class EstadoController
 {
 	
 	@Autowired
-	private EstadoDAO estadoDAO;
+	private EstadoService estadoService;
 	
-	@Autowired
-	private EstadoService cadastroEstado;
-	
-	@GetMapping("/listar")
-	public List<EstadoTO> listar()
+	@GetMapping("/pesquisar")
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<EstadoModel> pesquisar()
 	{
-		return estadoDAO.findAll();
+		RetornoModel<EstadoModel> retornoModel = new RetornoModel<EstadoModel>();
+		EstadoModel estadoModel = new EstadoModel();
+		
+		List<EstadoTO> estados = estadoService.pesquisar();
+		
+		estadoModel.setEstados(estados);
+		
+		retornoModel.setPayload(estadoModel);
+		
+		return retornoModel;
+		
 	}
 	
-	@GetMapping("/listar/{estadoId}")
-	public EstadoTO buscar(@PathVariable Long estadoId)
+	@GetMapping("/visualizar/{idEstado}")
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<EstadoTO> visualizar(@PathVariable Long idEstado)
 	{
-		return cadastroEstado.buscarEstado(estadoId);
+		RetornoModel<EstadoTO> retornoModel = new RetornoModel<EstadoTO>();
+		
+		EstadoTO estadoTO = estadoService.visualizar(idEstado);
+		
+		retornoModel.setPayload(estadoTO);
+		
+		return retornoModel;
+		
 	}
 	
 	@PostMapping("/adicionar")
-	@ResponseStatus(HttpStatus.CREATED)
-	public EstadoTO adicionar(@RequestBody EstadoTO estado)
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<Object> adicionar(@RequestBody EstadoTO estadoTO)
 	{
-		return cadastroEstado.salvar(estado);
+		RetornoModel<Object> retornoModel = new RetornoModel<Object>();
+		
+		estadoService.salvar(estadoTO);
+		
+		retornoModel.setTxRetorno("O estado foi adicionado com sucesso.");
+		
+		return retornoModel;
 	}
 	
+	// TODO testar o atualizar
 	@PutMapping("/atualizar/{idEstado}")
-	public EstadoTO atualizar(@PathVariable Long idEstado, @RequestBody EstadoTO estadoModel)
+	@ResponseStatus(HttpStatus.OK)
+	public EstadoTO atualizar(@PathVariable Long idEstado, @RequestBody EstadoTO estadoTO)
 	{
-		EstadoTO estadoAtual = cadastroEstado.buscarEstado(idEstado);
+		EstadoTO estadoAtual = estadoService.buscarEstado(idEstado);
 		
-		BeanUtils.copyProperties(estadoModel, estadoAtual, "id");
+		BeanUtils.copyProperties(estadoTO, estadoAtual, "id");
 		
-		return cadastroEstado.salvar(estadoAtual);
+		return estadoService.salvar(estadoAtual);
 	}
 	
 	@DeleteMapping("/remover/{idEstado}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long idEstado)
+	@ResponseStatus(HttpStatus.OK)
+	public RetornoModel<Object> remover(@PathVariable Long idEstado)
 	{
-		cadastroEstado.excluir(idEstado);
+		RetornoModel<Object> retornoModel = new RetornoModel<Object>();
+		
+		estadoService.excluir(idEstado);
+		
+		retornoModel.setTxRetorno("O estado foi removido com sucesso.");
+		
+		return retornoModel;
 	}
 	
 }
